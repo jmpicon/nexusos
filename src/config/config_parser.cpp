@@ -1,5 +1,5 @@
 #include "config_parser.hpp"
-#include "logger.hpp"
+#include "utils/logger.hpp"
 
 #include <yaml-cpp/yaml.h>
 #include <fstream>
@@ -98,13 +98,13 @@ Result<NexusConfig, std::string> ConfigParser::load(
 
     // Extra repos
     if (doc["extra_repos"] && doc["extra_repos"].IsSequence()) {
-        for (auto& r : doc["extra_repos"])
+        for (const auto& r : doc["extra_repos"])
             cfg.extra_repos.push_back(r.as<std::string>());
     }
 
     // Sysctl overrides
     if (doc["sysctl_overrides"] && doc["sysctl_overrides"].IsMap()) {
-        for (auto& kv : doc["sysctl_overrides"])
+        for (const auto& kv : doc["sysctl_overrides"])
             cfg.sysctl_overrides[kv.first.as<std::string>()] = kv.second.as<std::string>();
     }
 

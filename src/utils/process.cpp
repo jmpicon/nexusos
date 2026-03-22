@@ -261,8 +261,8 @@ VoidResult Process::umount_chroot_vfs(const std::filesystem::path& chroot) {
         (chroot/"proc").string(),
     };
     for (auto& p : points) {
-        // lazy umount — best effort
-        run("umount", {"-l", p});
+        // lazy umount — best effort, ignore result
+        (void)run("umount", {"-l", p});
     }
     return VoidResult::ok();
 }

@@ -53,7 +53,7 @@ VoidResult BrandingManager::write_os_release(const std::filesystem::path& rootfs
     if (!ofs) return VoidResult::err("Cannot write /etc/os-release");
 
     ofs << fmt::format(
-        R"(NAME="NexusOS"
+        R"OS(NAME="NexusOS"
 VERSION="{0} ({1})"
 ID=nexusos
 ID_LIKE=debian
@@ -63,7 +63,7 @@ HOME_URL="https://github.com/nexusos/nexus"
 SUPPORT_URL="https://github.com/nexusos/nexus/issues"
 BUG_REPORT_URL="https://github.com/nexusos/nexus/issues"
 ANSI_COLOR="1;36"
-)",
+)OS",
         VERSION_STRING, DISTRO_CODENAME);
 
     // Also write lsb_release

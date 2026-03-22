@@ -21,20 +21,19 @@ namespace nexus {
 template<typename T, typename E = std::string>
 class Result {
     std::variant<T, E> data_;
-    explicit Result() = default;
+    struct ok_tag  {};
+    struct err_tag {};
+    Result(ok_tag,  T val) : data_(std::in_place_index<0>, std::move(val)) {}
+    Result(err_tag, E e)   : data_(std::in_place_index<1>, std::move(e))   {}
 public:
-    [[nodiscard]] static Result ok(T val) {
-        Result r; r.data_ = std::move(val); return r;
-    }
-    [[nodiscard]] static Result err(E e) {
-        Result r; r.data_ = std::move(e); return r;
-    }
-    [[nodiscard]] bool is_ok()  const noexcept { return std::holds_alternative<T>(data_); }
-    [[nodiscard]] bool is_err() const noexcept { return !is_ok(); }
-    [[nodiscard]] T&       value()       { return std::get<T>(data_); }
-    [[nodiscard]] const T& value() const { return std::get<T>(data_); }
-    [[nodiscard]] E&       error()       { return std::get<E>(data_); }
-    [[nodiscard]] const E& error() const { return std::get<E>(data_); }
+    [[nodiscard]] static Result ok(T val) { return Result{ok_tag{},  std::move(val)}; }
+    [[nodiscard]] static Result err(E e)  { return Result{err_tag{}, std::move(e)};   }
+    [[nodiscard]] bool is_ok()  const noexcept { return data_.index() == 0; }
+    [[nodiscard]] bool is_err() const noexcept { return data_.index() == 1; }
+    [[nodiscard]] T&       value()       { return std::get<0>(data_); }
+    [[nodiscard]] const T& value() const { return std::get<0>(data_); }
+    [[nodiscard]] E&       error()       { return std::get<1>(data_); }
+    [[nodiscard]] const E& error() const { return std::get<1>(data_); }
     explicit operator bool() const noexcept { return is_ok(); }
 
     // Monadic chain: if ok, map value; if err, propagate

@@ -56,7 +56,7 @@ VoidResult IsoBuilder::write_grub_cfg(
     std::ofstream ofs(path);
     if (!ofs) return VoidResult::err("Cannot write grub.cfg: " + path.string());
 
-    ofs << fmt::format(R"(
+    ofs << fmt::format(R"CFG(
 set default=0
 set timeout=10
 set timeout_style=menu
@@ -105,7 +105,7 @@ menuentry "Reboot" {{
 menuentry "Shutdown" {{
   halt
 }}
-)", volume_id);
+)CFG", volume_id);
 
     return VoidResult::ok();
 }

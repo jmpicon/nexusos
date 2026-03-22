@@ -1,5 +1,5 @@
 #include "profile_manager.hpp"
-#include "logger.hpp"
+#include "utils/logger.hpp"
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
@@ -80,7 +80,7 @@ Result<Profile, std::string> ProfileManager::load_yaml(
     p.hook_post_harden   = yget<std::string>(doc, "hook_post_harden",   "");
 
     if (doc["config"] && doc["config"].IsMap()) {
-        for (auto& kv : doc["config"])
+        for (const auto& kv : doc["config"])
             p.config[kv.first.as<std::string>()] = kv.second.as<std::string>();
     }
 

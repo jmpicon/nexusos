@@ -8,6 +8,7 @@ add_library(nexus_utils STATIC
 target_include_directories(nexus_utils PUBLIC
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/utils
     ${CMAKE_BINARY_DIR}/generated
 )
 

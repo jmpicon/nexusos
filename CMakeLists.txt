@@ -25,8 +25,11 @@ add_compile_options(
     -Wno-unused-parameter
     -Wshadow -Wformat=2
     -fstack-protector-strong
-    $<$<CONFIG:Release>:-O2 -DNDEBUG>
-    $<$<CONFIG:Debug>:-O0 -g3 -DNEXUS_DEBUG>
+    $<$<CONFIG:Release>:-O2>
+    $<$<CONFIG:Release>:-DNDEBUG>
+    $<$<CONFIG:Debug>:-O0>
+    $<$<CONFIG:Debug>:-g3>
+    $<$<CONFIG:Debug>:-DNEXUS_DEBUG>
 )
 
 if(NEXUS_ENABLE_ASAN)
