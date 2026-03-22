@@ -1,0 +1,102 @@
+# NexusOS — Forensic profile
+# Digital forensics and incident response.
+
+name: forensic
+description: "DFIR — disk forensics, memory analysis, artifact extraction"
+version: "0.1.0"
+desktop: xfce4
+
+extends:
+  - analyst
+
+overlays:
+  - forensic
+
+packages:
+  # Disk forensics
+  - sleuthkit
+  - dc3dd
+  - dcfldd
+  - ddrescue
+  - testdisk
+  - photorec
+  - scalpel
+  - foremost
+  - safecopy
+  - dislocker
+
+  # Filesystem tools
+  - e2fsprogs
+  - ntfs-3g
+  - fatresize
+  - xfsprogs
+  - exfatprogs
+  - hfsprogs
+  - btrfs-progs
+  - nilfs-tools
+
+  # Memory forensics
+  - volatility3
+  - lime-forensics-dkms
+
+  # Malware analysis (static)
+  - yara
+  - binwalk
+  - radare2
+  - clamav
+  - clamav-daemon
+
+  # File analysis
+  - exiftool
+  - ssdeep
+  - afflib-tools
+  - ewf-tools
+
+  # Hash tools
+  - hashdeep
+  - md5deep
+  - sha3sum
+
+  # Log analysis
+  - logwatch
+  - eventlog-to-syslog
+  - python3-evtx
+
+  # Browser forensics
+  - sqlite3
+  - libsqlite3-dev
+
+  # Archive handling
+  - unrar
+  - 7zip
+  - cabextract
+  - libarchive-tools
+
+  # Network forensics
+  - wireshark
+  - tshark
+  - tcpflow
+  - ngrep
+  - chaosreader
+
+  # Integrity checking
+  - aide
+  - tripwire
+
+  # Reporting
+  - pandoc
+  - python3-reportlab
+  - texlive-latex-base
+
+packages_hardened:
+  - auditd
+  - aide
+
+packages_lab:
+  - autopsy
+
+config:
+  write_blocking_reminder: "true"
+  forensic_mode: "true"
+
+hook_post_packages: "post-forensic.sh"

@@ -1,0 +1,80 @@
+# NexusOS — Lab profile
+# Virtualisation, malware analysis lab, isolated environment.
+
+name: lab
+description: "Isolated security lab — virtualisation, malware analysis, controlled testing"
+version: "0.1.0"
+desktop: xfce4
+support_hardened: false
+support_lab: true
+
+extends:
+  - forensic
+
+overlays:
+  - lab
+
+packages:
+  # Virtualisation
+  - qemu-kvm
+  - qemu-system-x86
+  - qemu-utils
+  - libvirt-daemon
+  - libvirt-daemon-system
+  - libvirt-clients
+  - virt-manager
+  - virt-viewer
+  - ovmf
+  - seabios
+
+  # Network virtualisation
+  - bridge-utils
+  - openvswitch-switch
+  - vde2
+
+  # Snapshot and management
+  - guestfs-tools
+  - libguestfs-tools
+  - cloud-image-utils
+  - cloud-init
+
+  # Malware analysis (static) — no execution
+  - yara
+  - clamav
+  - binwalk
+  - radare2
+  - ghidra
+
+  # Network isolation
+  - nftables
+  - iproute2
+  - ebtables
+
+  # Monitoring inside lab
+  - wireshark
+  - tshark
+  - tcpdump
+  - procmon-linux
+
+  # Sandbox containers
+  - podman
+  - bubblewrap
+  - firejail
+
+  # Documentation
+  - obsidian
+  - libreoffice
+
+  # Remote desktop for malware VMs
+  - virt-viewer
+  - spice-client-gtk
+  - remmina
+
+packages_lab:
+  - vagrant
+  - packer
+
+config:
+  isolation_mode: "true"
+  internet_access: "restricted"
+  snapshot_on_boot: "true"

@@ -1,0 +1,118 @@
+# NexusOS — Reverse Engineering profile
+# Binary analysis, malware research, reversing tools.
+
+name: reverse
+description: "Reverse engineering — binary analysis, disassembly, debugging"
+version: "0.1.0"
+desktop: xfce4
+
+extends:
+  - core
+
+overlays:
+  - reverse
+
+packages:
+  # Desktop
+  - xfce4
+  - xfce4-terminal
+  - lightdm
+  - xorg
+  - dbus-x11
+
+  # Disassemblers and decompilers
+  - ghidra
+  - radare2
+  - r2ghidra
+  - cutter
+
+  # Debuggers
+  - gdb
+  - gdb-multiarch
+  - lldb
+  - pwndbg
+  - peda
+
+  # Binary analysis
+  - binutils
+  - binwalk
+  - file
+  - readelf
+  - objdump
+  - objcopy
+  - nm
+  - strings
+  - hexedit
+  - xxd
+  - bsdmainutils
+
+  # Dynamic analysis
+  - strace
+  - ltrace
+  - dtrace
+  - perf
+  - valgrind
+  - pin
+
+  # Scripting and automation
+  - python3
+  - python3-pip
+  - python3-capstone
+  - python3-pwntools
+  - python3-keystone
+  - python3-unicorn
+  - ipython3
+
+  # Network analysis (for malware)
+  - wireshark
+  - tshark
+  - tcpdump
+  - ngrep
+
+  # Sandbox helpers (static analysis only)
+  - yara
+  - clamav
+  - ssdeep
+
+  # Emulation
+  - qemu-user
+  - qemu-user-static
+
+  # Compilers and tools
+  - gcc
+  - g++
+  - clang
+  - nasm
+  - masm
+  - make
+  - cmake
+  - build-essential
+
+  # Java (for Ghidra)
+  - default-jdk
+
+  # ELF helpers
+  - elfutils
+  - libelf-dev
+  - patchelf
+  - checksec
+
+  # PE analysis
+  - python3-pefile
+  - python3-signify
+
+  # Hex editors and viewers
+  - wxhexeditor
+  - okteta
+
+packages_hardened:
+  - firejail
+  - bubblewrap
+
+packages_lab:
+  - bochs
+  - dosbox
+
+config:
+  sandbox_by_default: "false"
+  java_heap: "4g"

@@ -1,0 +1,121 @@
+# NexusOS — Analyst profile
+# Network analysis, traffic inspection, system auditing.
+
+name: analyst
+description: "Network analyst — traffic analysis, scanning, system auditing"
+version: "0.1.0"
+desktop: xfce4
+
+extends:
+  - core
+
+overlays:
+  - analyst
+
+packages:
+  # Desktop environment
+  - xfce4
+  - xfce4-goodies
+  - xfce4-terminal
+  - lightdm
+  - lightdm-gtk-greeter
+  - xorg
+  - dbus-x11
+
+  # Network scanning & analysis
+  - nmap
+  - masscan
+  - ncat
+  - netcat-openbsd
+  - arp-scan
+  - arping
+  - traceroute
+  - mtr
+  - ngrep
+  - whois
+  - host
+  - dig
+
+  # Packet capture and analysis
+  - wireshark
+  - tshark
+  - tcpdump
+  - tcpreplay
+  - tcpflow
+  - libpcap-dev
+  - termshark
+
+  # Network monitoring
+  - zeek
+  - suricata
+  - snort3
+  - ntopng
+  - iftop
+  - nethogs
+  - bandwidthd
+
+  # IDS/IPS rules
+  - suricata-update
+
+  # System monitoring
+  - htop
+  - btop
+  - atop
+  - glances
+  - sysstat
+  - iotop
+  - powertop
+  - lm-sensors
+
+  # Log analysis
+  - jq
+  - yq
+  - miller
+  - gawk
+  - ripgrep
+  - fd-find
+
+  # System auditing
+  - lynis
+  - osquery
+  - rkhunter
+  - chkrootkit
+  - aide
+  - auditd
+  - audit-audispd-plugins
+
+  # Firewall and network config
+  - nftables
+  - iptables
+  - ipset
+  - ethtool
+  - bridge-utils
+  - vlan
+
+  # SNMP and network management
+  - snmp
+  - snmpd
+  - snmp-mibs-downloader
+
+  # Certificates
+  - openssl
+  - ca-certificates
+  - gnupg2
+
+  # Utilities
+  - dnstwist
+  - dnsenum
+  - dnswalk
+  - nmap-common
+
+packages_hardened:
+  - fail2ban
+  - libpam-pwquality
+
+packages_lab:
+  - wireshark-qt
+  - libvirt-clients
+
+config:
+  desktop: xfce4
+  autologin: "false"

@@ -1,0 +1,33 @@
+# Build artifacts
+build/
+release/*.iso
+release/*.sha256
+release/*.manifest.json
+*.o
+*.a
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_deps/
+
+# rootfs / live build artifacts
+rootfs/
+squashfs/
+iso-staging/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+
+# Generated headers (produced by cmake)
+build/*/generated/

@@ -1,0 +1,93 @@
+# NexusOS — Full profile
+# All-in-one: every tool from every profile.
+# Produces the largest ISO (~6-8 GB uncompressed).
+
+name: full
+description: "Full NexusOS — all profiles combined"
+version: "0.1.0"
+desktop: xfce4
+
+extends:
+  - analyst
+  - forensic
+  - reverse
+  - cloud
+
+overlays:
+  - common
+  - analyst
+  - forensic
+  - reverse
+  - cloud
+  - blueteam
+  - lab
+  - full
+
+packages:
+  # Additional tools not in other profiles
+
+  # OSINT
+  - recon-ng
+  - theharvester
+  - maltego-casefile
+  - spiderfoot
+  - photon
+  - amass
+  - subfinder
+  - assetfinder
+  - waybackurls
+
+  # Threat intelligence
+  - misp
+  - opencti
+
+  # Incident response
+  - ir-rescue
+  - kape
+
+  # Secure communications
+  - signal-desktop
+  - element-desktop
+  - tor
+  - torbrowser-launcher
+  - proxychains4
+
+  # Documentation and reporting
+  - obsidian
+  - pandoc
+  - libreoffice
+  - gimp
+  - inkscape
+
+  # Development helpers
+  - git
+  - git-flow
+  - pre-commit
+  - python3
+  - python3-pip
+  - go
+  - rustup
+  - nodejs
+  - npm
+
+  # Additional shell tools
+  - zsh
+  - fish
+  - tmux
+  - screen
+  - mosh
+
+packages_hardened:
+  - libpam-pwquality
+  - libpam-tmpdir
+  - aide
+
+packages_lab:
+  - vagrant
+  - packer
+  - kind
+  - minikube
+
+config:
+  full_profile: "true"
+  estimated_size_gb: "8"

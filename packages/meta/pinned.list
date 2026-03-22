@@ -1,0 +1,10 @@
+# NexusOS — Pinned package versions
+# Format: package=version
+# Used to ensure reproducible builds when specific versions are required.
+
+# Add version pins here as needed.
+# Example:
+# openssl=3.0.14-1~deb12u1
+# zeek=6.2.1-1
+
+# Currently no global pins — versions follow Debian Bookworm stable.

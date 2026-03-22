@@ -1,0 +1,42 @@
+# NexusOS — Build configuration
+# Documentation: docs/build.md
+
+distro_name:     "NexusOS"
+distro_codename: "Phantom"
+version:         "0.1.0"
+
+paths:
+  workspace: "/tmp/nexus-workspace"
+  output:    "./release"
+  cache:     "/var/cache/nexus"
+  profiles:  "profiles"
+  overlays:  "overlays"
+  packages:  "packages"
+  scripts:   "scripts"
+  assets:    "assets"
+
+base:
+  mirror:           "http://deb.debian.org/debian"
+  suite:            "bookworm"
+  arch:             "amd64"
+  include_firmware: true
+
+build:
+  jobs:       4
+  use_cache:  true
+  gpg_verify: true
+
+qemu:
+  binary:  "qemu-system-x86_64"
+  ram_mb:  2048
+  timeout: 120
+
+# Uncomment to add extra apt repositories (e.g., for tools not in Debian main)
+# extra_repos:
+#   - "deb https://packages.zeek.org/current/debian bookworm main"
+#   - "deb https://packages.grafana.com/oss/deb stable main"
+#   - "deb https://osquery-packages.s3.amazonaws.com/bookworm bookworm main"
+
+# Uncomment to override sysctl values
+# sysctl_overrides:
+#   net.ipv4.ip_forward: "1"

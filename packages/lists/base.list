@@ -1,0 +1,61 @@
+# NexusOS — Base package list
+# Minimum required for a functional Debian live system.
+# These are always installed regardless of profile.
+
+# Init and boot
+systemd
+systemd-sysv
+systemd-timesyncd
+dbus
+udev
+initramfs-tools
+linux-image-amd64
+
+# Core utilities
+bash
+coreutils
+util-linux
+procps
+findutils
+grep
+sed
+gawk
+diffutils
+file
+less
+man-db
+bsdutils
+
+# Networking
+iproute2
+iputils-ping
+net-tools
+dnsutils
+curl
+wget
+netcat-openbsd
+ca-certificates
+openssl
+
+# Package management
+apt
+apt-transport-https
+gnupg2
+lsb-release
+
+# Security baseline
+sudo
+apparmor
+apparmor-utils
+auditd
+nftables
+
+# Live system
+live-boot
+live-boot-initramfs-tools
+live-config
+live-config-systemd
+
+# Firmware
+firmware-linux-free
+firmware-linux-nonfree

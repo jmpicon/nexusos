@@ -1,0 +1,111 @@
+# NexusOS — Cloud Security profile
+# Cloud infrastructure security, container security, Kubernetes security.
+
+name: cloud
+description: "Cloud/container security — K8s, Docker, Terraform, cloud-native tooling"
+version: "0.1.0"
+desktop: xfce4
+
+extends:
+  - analyst
+
+overlays:
+  - cloud
+
+packages:
+  # Desktop
+  - xfce4
+  - xfce4-terminal
+  - lightdm
+  - xorg
+
+  # Container runtimes
+  - podman
+  - buildah
+  - skopeo
+  - runc
+  - crun
+
+  # Container security scanning
+  - trivy
+  - grype
+  - syft
+  - snyk
+
+  # Kubernetes tools
+  - kubectl
+  - helm
+  - k9s
+  - kubeaudit
+  - kube-bench
+  - kube-score
+  - kubeval
+  - kustomize
+  - stern
+  - velero
+
+  # Infrastructure as code
+  - terraform
+  - terragrunt
+  - ansible
+  - ansible-lint
+
+  # Cloud CLI tools
+  - awscli
+  - azure-cli
+  - google-cloud-sdk
+
+  # Secrets management
+  - vault
+  - sops
+  - age
+  - pass
+
+  # Cloud audit / CSPM
+  - prowler
+  - steampipe
+  - cloudcustodian
+
+  # Network tools (cloud focus)
+  - nmap
+  - masscan
+  - nuclei
+  - httpx
+
+  # API security
+  - ffuf
+  - gobuster
+  - arjun
+
+  # Observability
+  - prometheus
+  - grafana
+  - alertmanager
+  - loki
+
+  # Scripting
+  - python3
+  - python3-boto3
+  - python3-google-cloud-storage
+  - python3-azure
+  - jq
+  - yq
+  - nodejs
+  - npm
+
+  # Git and pipeline
+  - git
+  - git-crypt
+  - pre-commit
+
+packages_hardened:
+  - vault
+  - certbot
+
+packages_lab:
+  - kind
+  - minikube
+  - docker.io
+
+config:
+  cloud_focus: "multi-cloud"

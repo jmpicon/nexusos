@@ -1,0 +1,67 @@
+# NexusOS — Analyst package list
+# Network analysis, scanning, monitoring.
+
+# ── Network scanning ─────────────────────────────────────────────────────────
+nmap
+nmap-common
+masscan
+arp-scan
+arping
+traceroute
+mtr
+whois
+
+# ── Packet capture ────────────────────────────────────────────────────────────
+wireshark
+tshark
+tcpdump
+tcpreplay
+tcpflow
+libpcap-dev
+termshark
+
+# ── Network monitoring ────────────────────────────────────────────────────────
+zeek
+suricata
+suricata-update
+iftop
+nethogs
+
+# ── System monitoring ─────────────────────────────────────────────────────────
+htop
+btop
+atop
+glances
+sysstat
+iotop
+
+# ── Log and data analysis ─────────────────────────────────────────────────────
+jq
+yq
+ripgrep
+fd-find
+gawk
+
+# ── System auditing ───────────────────────────────────────────────────────────
+lynis
+osquery
+rkhunter
+chkrootkit
+aide
+auditd
+audit-audispd-plugins
+
+# ── Firewall ──────────────────────────────────────────────────────────────────
+nftables
+iptables
+ipset
+ethtool
+
+# ── Desktop ───────────────────────────────────────────────────────────────────
+xfce4
+xfce4-goodies
+xfce4-terminal
+lightdm
+lightdm-gtk-greeter
+xorg
+dbus-x11

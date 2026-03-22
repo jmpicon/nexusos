@@ -1,0 +1,101 @@
+# NexusOS — Blue Team profile
+# Defensive security: monitoring, hardening, threat hunting.
+
+name: blueteam
+description: "Blue team — defensive security, threat hunting, monitoring"
+version: "0.1.0"
+desktop: xfce4
+
+extends:
+  - analyst
+
+overlays:
+  - blueteam
+
+packages:
+  # SIEM / log aggregation
+  - elasticsearch
+  - logstash
+  - kibana
+  - filebeat
+  - auditbeat
+  - packetbeat
+
+  # Threat hunting
+  - osquery
+  - velociraptor-client
+  - sigma
+
+  # Endpoint detection
+  - wazuh-agent
+  - clamav
+  - clamav-daemon
+  - freshclam
+
+  # Vulnerability scanning
+  - openvas
+  - greenbone-vulnerability-manager
+  - nikto
+
+  # Hardening auditing
+  - lynis
+  - openscap
+  - scap-security-guide
+  - aide
+  - tripwire
+  - debsums
+
+  # Firewall and IDS
+  - nftables
+  - suricata
+  - suricata-update
+  - zeek
+  - psad
+
+  # Patch management
+  - unattended-upgrades
+  - apt-listchanges
+  - apt-show-versions
+
+  # Container security
+  - trivy
+  - grype
+  - syft
+
+  # Identity and access
+  - libpam-pwquality
+  - libpam-google-authenticator
+  - sssd
+  - krb5-user
+
+  # Secure communications
+  - gnupg2
+  - age
+  - sops
+
+  # Monitoring dashboards
+  - grafana
+  - prometheus
+  - prometheus-node-exporter
+  - alertmanager
+
+  # Network security monitoring
+  - zeek
+  - moloch
+  - arkime
+
+  # YARA
+  - yara
+  - yara-doc
+
+packages_hardened:
+  - libpam-pwquality
+  - libpam-tmpdir
+  - chkrootkit
+  - rkhunter
+
+packages_lab: []
+
+config:
+  monitoring_mode: "true"
+  elk_integration: "optional"

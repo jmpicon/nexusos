@@ -1,0 +1,5 @@
+# NexusOS — Lab sudoers configuration
+# In lab mode, passwordless sudo for convenience.
+# Do NOT use this in production environments.
+
+nexus ALL=(ALL:ALL) NOPASSWD: ALL

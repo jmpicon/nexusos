@@ -1,0 +1,88 @@
+# NexusOS GRUB configuration template
+# This file is processed by iso_builder to produce the final grub.cfg.
+# Variables substituted: @VOLUME_ID@, @VERSION@, @CODENAME@
+
+set default=0
+set timeout=10
+set timeout_style=menu
+
+# Load font and gfxterm if available
+if loadfont /boot/grub/font.pf2; then
+  set gfxmode=auto
+  insmod all_video
+  insmod gfxterm
+  terminal_output gfxterm
+fi
+
+set menu_color_normal=white/black
+set menu_color_highlight=black/light-gray
+
+# ── NexusOS boot entries ──────────────────────────────────────────────────────
+
+menuentry "NexusOS @VERSION@ — Live (default)" {
+  linux  /boot/vmlinuz \
+         boot=live quiet splash \
+         rd.live.image \
+         toram=0 \
+         apparmor=1 security=apparmor \
+         nexus_profile=default
+  initrd /boot/initrd.img
+}
+
+menuentry "NexusOS — Live (forensic mode — no writes to disk)" {
+  linux  /boot/vmlinuz \
+         boot=live quiet splash \
+         rd.live.image \
+         noswap \
+         nexus_mode=forensic \
+         apparmor=1 security=apparmor \
+         ro
+  initrd /boot/initrd.img
+}
+
+menuentry "NexusOS — Live (load to RAM)" {
+  linux  /boot/vmlinuz \
+         boot=live quiet splash \
+         rd.live.image toram \
+         apparmor=1 security=apparmor
+  initrd /boot/initrd.img
+}
+
+menuentry "NexusOS — Safe mode (nomodeset)" {
+  linux  /boot/vmlinuz \
+         boot=live nomodeset quiet \
+         rd.live.image
+  initrd /boot/initrd.img
+}
+
+menuentry "NexusOS — Debug (verbose boot)" {
+  linux  /boot/vmlinuz \
+         boot=live \
+         rd.live.image \
+         systemd.log_level=debug
+  initrd /boot/initrd.img
+}
+
+menuentry "NexusOS — Live + Persistence (saves changes to USB)" {
+  linux  /boot/vmlinuz \
+         boot=live quiet splash \
+         rd.live.image \
+         persistence \
+         persistence-label=persistence \
+         apparmor=1 security=apparmor
+  initrd /boot/initrd.img
+}
+
+menuentry "NexusOS — Live + Persistence + Encryption (LUKS)" {
+  linux  /boot/vmlinuz \
+         boot=live quiet splash \
+         rd.live.image \
+         persistence \
+         persistence-label=persistence \
+         persistence-encryption=luks \
+         apparmor=1 security=apparmor
+  initrd /boot/initrd.img
+}
+
+menuentry "Reboot" { reboot }
+menuentry "Power Off" { halt }

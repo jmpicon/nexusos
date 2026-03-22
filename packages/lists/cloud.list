@@ -1,0 +1,39 @@
+# NexusOS — Cloud Security package list
+
+# ── Container runtimes ────────────────────────────────────────────────────────
+podman
+buildah
+skopeo
+runc
+
+# ── Container security ────────────────────────────────────────────────────────
+trivy
+grype
+syft
+
+# ── Kubernetes ───────────────────────────────────────────────────────────────
+kubectl
+helm
+k9s
+kube-bench
+kubeaudit
+kustomize
+
+# ── IaC ──────────────────────────────────────────────────────────────────────
+terraform
+ansible
+ansible-lint
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+age
+sops
+pass
+
+# ── Scripting ────────────────────────────────────────────────────────────────
+python3
+python3-pip
+python3-boto3
+jq
+yq
+nodejs
+npm

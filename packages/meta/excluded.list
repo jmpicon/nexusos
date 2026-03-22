@@ -1,0 +1,23 @@
+# NexusOS — Globally excluded packages
+# These packages are never installed regardless of profile.
+
+# Offensive exploit frameworks (not included in a defensive distro)
+metasploit-framework
+beef-xss
+exploitdb
+
+# Credential dumping tools
+mimikatz
+lazagne
+
+# Unnecessary bloat for a security distro
+games
+gnome-games
+libreoffice-math
+
+# Telemetry
+popularity-contest
+
+# Conflicting packages
+ufw  # we use nftables
+firewalld  # we use nftables

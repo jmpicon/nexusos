@@ -1,0 +1,24 @@
+{
+  "_comment": "NexusOS update manifest format — served by update server",
+  "distro": "NexusOS",
+  "version": "0.2.0",
+  "codename": "Phantom",
+  "profile": "analyst",
+  "mode": "lab",
+  "release_date": "2026-04-01",
+  "changelog": "Updated zeek to 6.2.1, trivy to 0.50.0, kernel to 6.1.90",
+  "squashfs_url": "https://updates.nexusos.dev/stable/analyst/filesystem.squashfs",
+  "squashfs_sha256": "a1b2c3d4e5f6...(sha256 of the squashfs)",
+  "squashfs_size": 1234567890,
+  "iso_url": "https://updates.nexusos.dev/stable/analyst/NexusOS-analyst-0.2.0-amd64.iso",
+  "iso_sha256": "f6e5d4c3b2a1...(sha256 of the ISO)",
+  "iso_size": 2345678901,
+  "min_persistence_mb": 512,
+  "packages_added": ["zeek=6.2.1-1", "trivy=0.50.0-1"],
+  "packages_removed": [],
+  "packages_updated": ["linux-image-amd64=6.1.90-1", "openssl=3.0.15-1"],
+  "signatures": {
+    "squashfs": "gpg_signature_base64_here",
+    "iso": "gpg_signature_base64_here"
+  }
+}

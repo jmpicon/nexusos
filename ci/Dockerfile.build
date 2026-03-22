@@ -1,0 +1,39 @@
+# NexusOS — Builder container
+# Provides a reproducible build environment for nexus CLI and ISO generation.
+# Usage:
+#   docker build -f ci/Dockerfile.build -t nexus-builder .
+#   docker run --privileged --rm -v $(pwd):/workspace nexus-builder make release
+
+FROM debian:bookworm-slim
+
+LABEL maintainer="NexusOS Project"
+LABEL description="NexusOS ISO builder container"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ── Install build dependencies ────────────────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build system
+    build-essential cmake ninja-build pkg-config git curl wget \
+    # C++ libs
+    libssl-dev libyaml-cpp-dev \
+    # ISO build tools
+    debootstrap squashfs-tools xorriso \
+    grub-pc-bin grub-efi-amd64-bin grub-common grub-efi-amd64-signed \
+    dosfstools mtools rsync \
+    # Live system
+    live-build initramfs-tools \
+    # Utilities
+    jq gpg lsb-release ca-certificates \
+    python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Install cmake if version is too old ──────────────────────────────────────
+RUN cmake --version | grep -qE "3\.(2[5-9]|[3-9][0-9])" || \
+    (curl -fsSL https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.sh \
+     -o /tmp/cmake.sh && bash /tmp/cmake.sh --skip-license --prefix=/usr/local && rm /tmp/cmake.sh)
+
+WORKDIR /workspace
+
+# Build by default
+CMD ["bash", "-c", "cmake --preset ci && cmake --build --preset ci"]

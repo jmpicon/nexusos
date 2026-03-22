@@ -1,0 +1,57 @@
+# NexusOS — Reverse Engineering package list
+
+# ── Disassemblers ─────────────────────────────────────────────────────────────
+ghidra
+radare2
+cutter
+
+# ── Debuggers ────────────────────────────────────────────────────────────────
+gdb
+gdb-multiarch
+lldb
+
+# ── Binary analysis ───────────────────────────────────────────────────────────
+binutils
+binwalk
+file
+hexedit
+xxd
+bsdmainutils
+elfutils
+patchelf
+checksec
+
+# ── Dynamic analysis ─────────────────────────────────────────────────────────
+strace
+ltrace
+perf
+valgrind
+
+# ── Python scripting ─────────────────────────────────────────────────────────
+python3
+python3-pip
+python3-capstone
+ipython3
+
+# ── Compilation tools ────────────────────────────────────────────────────────
+gcc
+g++
+clang
+nasm
+make
+cmake
+build-essential
+
+# ── Java (for Ghidra) ────────────────────────────────────────────────────────
+default-jdk
+
+# ── Emulation ────────────────────────────────────────────────────────────────
+qemu-user
+qemu-user-static
+
+# ── Desktop ──────────────────────────────────────────────────────────────────
+xfce4
+xfce4-terminal
+lightdm
+xorg
+dbus-x11

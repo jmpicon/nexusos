@@ -1,0 +1,10 @@
+# NexusOS — Hardened sudoers configuration
+# In hardened mode, users must authenticate for sudo.
+# This replaces the passwordless lab default.
+
+# Require password for sudo
+nexus ALL=(ALL:ALL) ALL
+
+# Allow specific safe commands without password
+nexus ALL=(ALL) NOPASSWD: /sbin/reboot, /sbin/poweroff, /sbin/shutdown
+nexus ALL=(ALL) NOPASSWD: /usr/bin/apt-get update

@@ -1,0 +1,78 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build nexus CLI
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config \
+            libssl-dev libyaml-cpp-dev \
+            debootstrap squashfs-tools xorriso \
+            grub-pc-bin grub-efi-amd64-bin grub-common \
+            dosfstools mtools rsync \
+            jq gpg ca-certificates
+
+      - name: Configure CMake
+        run: cmake --preset ci
+
+      - name: Build
+        run: cmake --build --preset ci
+
+      - name: Run unit tests
+        run: ctest --preset all --output-on-failure
+
+      - name: Doctor check (dry-run)
+        run: |
+          ./build/ci/src/cli/nexus doctor || true
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-linux-amd64
+          path: build/ci/src/cli/nexus
+          retention-days: 14
+
+  lint:
+    name: Code quality
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: sudo apt-get install -y clang-tidy
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config \
+            libssl-dev libyaml-cpp-dev
+
+      - name: Configure with compile_commands
+        run: |
+          cmake --preset debug \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DNEXUS_ENABLE_TESTS=OFF
+
+      - name: Run clang-tidy
+        run: |
+          find src -name '*.cpp' | \
+            xargs clang-tidy \
+              -p build/debug \
+              --checks='-*,clang-analyzer-*,modernize-*,readability-*' \
+              --warnings-as-errors='' \
+              2>&1 | head -100
+        continue-on-error: true

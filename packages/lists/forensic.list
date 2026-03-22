@@ -1,0 +1,51 @@
+# NexusOS — Forensic package list
+
+# ── Disk forensics ────────────────────────────────────────────────────────────
+sleuthkit
+dc3dd
+dcfldd
+ddrescue
+testdisk
+photorec
+scalpel
+foremost
+safecopy
+dislocker
+
+# ── Filesystem support ────────────────────────────────────────────────────────
+e2fsprogs
+ntfs-3g
+exfatprogs
+btrfs-progs
+
+# ── Memory forensics ──────────────────────────────────────────────────────────
+volatility3
+lime-forensics-dkms
+
+# ── Malware analysis (static) ─────────────────────────────────────────────────
+yara
+binwalk
+clamav
+clamav-daemon
+radare2
+
+# ── File analysis ─────────────────────────────────────────────────────────────
+exiftool
+ssdeep
+afflib-tools
+ewf-tools
+
+# ── Hash tools ───────────────────────────────────────────────────────────────
+hashdeep
+md5deep
+
+# ── Archive handling ─────────────────────────────────────────────────────────
+unrar
+7zip
+cabextract
+libarchive-tools
+
+# ── Integrity ────────────────────────────────────────────────────────────────
+aide
+tripwire
+debsums

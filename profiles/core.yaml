@@ -1,0 +1,121 @@
+# NexusOS — Core profile
+# Minimal base system: kernel, init, networking, basic shell tools.
+# All other profiles extend this one.
+
+name: core
+description: "Minimal base system with essential tools"
+version: "0.1.0"
+desktop: ""  # no GUI in core
+
+support_hardened: true
+support_lab: true
+
+overlays:
+  - common
+
+packages:
+  # Base system
+  - bash
+  - coreutils
+  - util-linux
+  - procps
+  - psmisc
+  - findutils
+  - grep
+  - sed
+  - gawk
+  - diffutils
+  - file
+  - less
+  - more
+  - man-db
+  - manpages
+
+  # Init and services
+  - systemd
+  - systemd-sysv
+  - systemd-timesyncd
+  - dbus
+  - udev
+
+  # Networking
+  - iproute2
+  - iputils-ping
+  - net-tools
+  - dnsutils
+  - curl
+  - wget
+  - netcat-openbsd
+  - socat
+  - openssh-client
+  - ca-certificates
+
+  # Package management
+  - apt
+  - apt-transport-https
+  - gnupg2
+  - lsb-release
+  - debian-archive-keyring
+
+  # Text editors
+  - nano
+  - vim-tiny
+
+  # Compression and archives
+  - gzip
+  - bzip2
+  - xz-utils
+  - tar
+  - zip
+  - unzip
+  - p7zip-full
+
+  # Crypto and TLS
+  - openssl
+  - libssl-dev
+
+  # System info
+  - lsof
+  - strace
+  - ltrace
+  - htop
+  - tmux
+  - screen
+
+  # Logging
+  - rsyslog
+  - logrotate
+
+  # Security baseline
+  - sudo
+  - apparmor
+  - apparmor-utils
+  - auditd
+
+  # Live system support
+  - live-boot
+  - live-boot-initramfs-tools
+  - live-config
+  - live-config-systemd
+  - initramfs-tools
+
+  # Kernel
+  - linux-image-amd64
+  - firmware-linux-free
+  - firmware-linux-nonfree
+
+packages_hardened:
+  - aide
+  - rkhunter
+  - nftables
+  - fail2ban
+
+packages_lab:
+  - qemu-guest-additions
+  - open-vm-tools
+
+packages_exclude: []
+
+config:
+  default_shell: bash
+  umask: "027"

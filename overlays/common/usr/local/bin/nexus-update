@@ -1,0 +1,368 @@
+#!/usr/bin/env bash
+# nexus-update — NexusOS live system update tool
+#
+# Modes of operation:
+#
+#   nexus-update check             Check for available updates (apt + manifest)
+#   nexus-update apply             Apply apt upgrades to persistence layer
+#   nexus-update status            Show current version and persistence info
+#   nexus-update squashfs <device> Replace squashfs on USB with latest from server
+#   nexus-update offline <path>    Apply a local .squashfs or .deb bundle
+#
+# Requirements inside live system: apt, curl, sha256sum, live-boot persistence
+#
+set -euo pipefail
+
+RESET='\033[0m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; BOLD='\033[1m'
+CYAN='\033[36m'
+
+CONF_FILE="/etc/nexus/update.conf"
+VERSION_FILE="/etc/nexus/version"
+LOG_FILE="/var/log/nexus-update.log"
+
+# ── Load configuration ─────────────────────────────────────────────────────
+load_config() {
+    UPDATE_SERVER=""
+    UPDATE_CHANNEL="stable"
+    MANIFEST_URL=""
+
+    if [[ -f "$CONF_FILE" ]]; then
+        # shellcheck source=/dev/null
+        source "$CONF_FILE"
+    fi
+
+    # Defaults
+    UPDATE_SERVER="${UPDATE_SERVER:-https://updates.nexusos.dev}"
+    UPDATE_CHANNEL="${UPDATE_CHANNEL:-stable}"
+
+    # Current profile from os-release
+    PROFILE=$(grep -oP 'NEXUS_PROFILE=\K.*' /etc/os-release 2>/dev/null || echo "unknown")
+    NEXUS_VERSION=$(grep -oP 'VERSION_ID="\K[^"]+' /etc/os-release 2>/dev/null || cat "$VERSION_FILE" 2>/dev/null || echo "unknown")
+
+    MANIFEST_URL="${UPDATE_SERVER}/${UPDATE_CHANNEL}/${PROFILE}/manifest.json"
+}
+
+log() {
+    local level="$1"; shift
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $*" >> "$LOG_FILE"
+}
+
+check_persistence() {
+    if ! grep -q "persistence" /proc/cmdline 2>/dev/null; then
+        echo -e "${YELLOW}Warning: system was not booted with 'persistence'.${RESET}"
+        echo -e "${YELLOW}Updates will be applied but lost on reboot unless persistence is active.${RESET}"
+        echo -e "${YELLOW}Boot with: persistence kernel parameter to keep changes.${RESET}"
+        echo ""
+    fi
+}
+
+require_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo -e "${RED}Error: this command requires root (sudo nexus-update $*)${RESET}"
+        exit 1
+    fi
+}
+
+# ── cmd: status ───────────────────────────────────────────────────────────────
+cmd_status() {
+    echo -e "${BOLD}NexusOS Update Status${RESET}"
+    echo "════════════════════════════"
+
+    # Version
+    echo -e "\n${BOLD}Version:${RESET}"
+    grep -E "^(PRETTY_NAME|VERSION|NEXUS_PROFILE)" /etc/os-release 2>/dev/null | \
+        sed 's/^/  /'
+
+    # Persistence
+    echo -e "\n${BOLD}Persistence:${RESET}"
+    if grep -q "persistence" /proc/cmdline 2>/dev/null; then
+        echo -e "  ${GREEN}Active${RESET} — changes will be saved"
+        # Find persistence partition
+        PERSIST_PART=$(findfs LABEL=persistence 2>/dev/null || echo "unknown")
+        echo "  Partition: ${PERSIST_PART}"
+        if [[ "$PERSIST_PART" != "unknown" ]]; then
+            df -h "$PERSIST_PART" | awk 'NR==2{printf "  Used: %s / %s (%s free)\n", $3, $2, $4}'
+        fi
+    else
+        echo -e "  ${YELLOW}Not active${RESET} — boot with 'persistence' to save changes"
+    fi
+
+    # Live mount
+    echo -e "\n${BOLD}Live filesystem:${RESET}"
+    mount | grep -E "squash|overlay|tmpfs" | grep -v "^tmpfs on /run" | \
+        awk '{printf "  %s → %s (%s)\n", $1, $3, $5}' || echo "  (not a live system)"
+
+    # Available disk space
+    echo -e "\n${BOLD}Overlay space:${RESET}"
+    df -h /  | awk 'NR==2{printf "  Root: %s used, %s free\n", $3, $4}'
+
+    echo ""
+}
+
+# ── cmd: check ────────────────────────────────────────────────────────────────
+cmd_check() {
+    load_config
+    echo -e "${BOLD}▶ Checking for updates...${RESET}"
+    echo "  Current version : ${NEXUS_VERSION}"
+    echo "  Profile         : ${PROFILE}"
+    echo "  Channel         : ${UPDATE_CHANNEL}"
+    echo "  Server          : ${UPDATE_SERVER}"
+    echo ""
+
+    # Check apt updates
+    echo -e "${BOLD}Checking apt packages...${RESET}"
+    apt-get update -qq 2>/dev/null || {
+        echo -e "${YELLOW}  ! apt-get update failed (offline?)${RESET}"
+    }
+
+    UPGRADABLE=$(apt list --upgradable 2>/dev/null | grep -c "upgradable" || echo 0)
+    if [[ "$UPGRADABLE" -gt 0 ]]; then
+        echo -e "${YELLOW}  ! ${UPGRADABLE} packages can be upgraded${RESET}"
+        apt list --upgradable 2>/dev/null | grep -v "Listing" | head -20 | sed 's/^/    /'
+        echo ""
+        echo -e "  Run: ${CYAN}sudo nexus-update apply${RESET} to apply updates"
+    else
+        echo -e "${GREEN}  ✓ All packages up to date${RESET}"
+    fi
+
+    # Check for new squashfs from server
+    if command -v curl &>/dev/null && [[ -n "$UPDATE_SERVER" ]]; then
+        echo ""
+        echo -e "${BOLD}Checking update manifest from server...${RESET}"
+        MANIFEST_TMP=$(mktemp)
+        if curl -fsSL --max-time 10 "$MANIFEST_URL" -o "$MANIFEST_TMP" 2>/dev/null; then
+            REMOTE_VERSION=$(jq -r '.version' "$MANIFEST_TMP" 2>/dev/null || echo "unknown")
+            CHANGELOG=$(jq -r '.changelog // ""' "$MANIFEST_TMP" 2>/dev/null)
+            echo "  Remote version  : ${REMOTE_VERSION}"
+            if [[ "$REMOTE_VERSION" != "$NEXUS_VERSION" ]] && [[ "$REMOTE_VERSION" != "unknown" ]]; then
+                echo -e "${YELLOW}  ! New version available: ${REMOTE_VERSION}${RESET}"
+                [[ -n "$CHANGELOG" ]] && echo "  Changes: ${CHANGELOG}"
+                echo ""
+                echo -e "  Run: ${CYAN}sudo nexus-update squashfs /dev/sdX${RESET} to replace squashfs on USB"
+            else
+                echo -e "${GREEN}  ✓ Already on latest version${RESET}"
+            fi
+            rm -f "$MANIFEST_TMP"
+        else
+            echo -e "${YELLOW}  ! Cannot reach update server (offline mode)${RESET}"
+        fi
+    fi
+
+    echo ""
+}
+
+# ── cmd: apply ────────────────────────────────────────────────────────────────
+cmd_apply() {
+    require_root "apply"
+    check_persistence
+
+    echo -e "${BOLD}▶ Applying apt upgrades...${RESET}"
+    log INFO "Starting apt upgrade"
+
+    export DEBIAN_FRONTEND=noninteractive
+
+    apt-get update -qq
+    UPGRADABLE=$(apt list --upgradable 2>/dev/null | grep -c "upgradable" || echo 0)
+
+    if [[ "$UPGRADABLE" -eq 0 ]]; then
+        echo -e "${GREEN}  ✓ Nothing to upgrade${RESET}"
+        exit 0
+    fi
+
+    echo "  Upgrading ${UPGRADABLE} packages..."
+    apt-get upgrade -y \
+        -o Dpkg::Options::="--force-confnew" \
+        -o Dpkg::Options::="--force-overwrite" \
+        --no-install-recommends
+
+    apt-get autoremove -y --purge
+    apt-get autoclean
+
+    log INFO "apt upgrade complete (${UPGRADABLE} packages)"
+    echo -e "${GREEN}  ✓ ${UPGRADABLE} packages upgraded${RESET}"
+
+    # Update nexus version marker
+    if command -v dpkg &>/dev/null; then
+        echo "$(date '+%Y-%m-%d') — apt upgrade: ${UPGRADABLE} packages" >> "$LOG_FILE"
+    fi
+
+    echo ""
+    echo -e "${YELLOW}Note: a reboot may be required for kernel updates.${RESET}"
+    echo ""
+}
+
+# ── cmd: squashfs ─────────────────────────────────────────────────────────────
+cmd_squashfs() {
+    local DEVICE="${1:-}"
+    require_root "squashfs"
+    load_config
+
+    if [[ -z "$DEVICE" ]]; then
+        echo "Usage: nexus-update squashfs <device>"
+        echo "Example: sudo nexus-update squashfs /dev/sdb"
+        exit 1
+    fi
+
+    if [[ ! -b "$DEVICE" ]]; then
+        echo -e "${RED}Not a block device: ${DEVICE}${RESET}"; exit 1
+    fi
+
+    echo -e "${BOLD}▶ Fetching update manifest...${RESET}"
+    MANIFEST_TMP=$(mktemp)
+    if ! curl -fsSL --max-time 30 "$MANIFEST_URL" -o "$MANIFEST_TMP"; then
+        echo -e "${RED}Cannot download manifest from: ${MANIFEST_URL}${RESET}"
+        rm -f "$MANIFEST_TMP"
+        exit 1
+    fi
+
+    SQUASHFS_URL=$(jq -r '.squashfs_url'  "$MANIFEST_TMP")
+    SQUASHFS_SHA=$(jq -r '.squashfs_sha256' "$MANIFEST_TMP")
+    SQUASHFS_SIZE=$(jq -r '.squashfs_size' "$MANIFEST_TMP")
+    REMOTE_VERSION=$(jq -r '.version' "$MANIFEST_TMP")
+    rm -f "$MANIFEST_TMP"
+
+    if [[ -z "$SQUASHFS_URL" ]] || [[ "$SQUASHFS_URL" == "null" ]]; then
+        echo -e "${RED}Manifest does not contain a squashfs_url${RESET}"; exit 1
+    fi
+
+    echo "  Remote version  : ${REMOTE_VERSION}"
+    echo "  Squashfs URL    : ${SQUASHFS_URL}"
+    SIZE_MB=$(( SQUASHFS_SIZE / 1024 / 1024 ))
+    echo "  Size            : ~${SIZE_MB} MB"
+    echo ""
+
+    # Download to temp
+    SQUASHFS_TMP=$(mktemp /tmp/nexus-squashfs-XXXXXX.squashfs)
+    echo -e "${BOLD}▶ Downloading squashfs...${RESET}"
+    curl -fL --progress-bar "$SQUASHFS_URL" -o "$SQUASHFS_TMP"
+
+    # Verify SHA-256
+    echo -e "${BOLD}▶ Verifying checksum...${RESET}"
+    ACTUAL_SHA=$(sha256sum "$SQUASHFS_TMP" | awk '{print $1}')
+    if [[ "$ACTUAL_SHA" != "$SQUASHFS_SHA" ]]; then
+        echo -e "${RED}SHA-256 mismatch!${RESET}"
+        echo "  Expected: ${SQUASHFS_SHA}"
+        echo "  Got:      ${ACTUAL_SHA}"
+        rm -f "$SQUASHFS_TMP"
+        exit 1
+    fi
+    echo -e "${GREEN}  ✓ Checksum verified${RESET}"
+
+    # Find the squashfs on the device
+    # Mount the ISO partition and replace the squashfs
+    ISO_PART=""
+    for p in "${DEVICE}1" "${DEVICE}p1"; do
+        [[ -b "$p" ]] && ISO_PART="$p" && break
+    done
+
+    if [[ -z "$ISO_PART" ]]; then
+        echo -e "${RED}Cannot find ISO partition on ${DEVICE}${RESET}"; exit 1
+    fi
+
+    MNT=$(mktemp -d)
+    echo -e "${BOLD}▶ Replacing squashfs on ${ISO_PART}...${RESET}"
+    mount -o rw "$ISO_PART" "$MNT" 2>/dev/null || {
+        echo -e "${RED}Cannot mount ${ISO_PART} rw — ISO partition may be read-only${RESET}"
+        echo "For USB devices, use write-usb.sh with a writable partition layout."
+        rm -f "$SQUASHFS_TMP"
+        rmdir "$MNT"
+        exit 1
+    }
+
+    # Backup old squashfs
+    OLD_SQUASHFS="${MNT}/live/filesystem.squashfs"
+    if [[ -f "$OLD_SQUASHFS" ]]; then
+        mv "$OLD_SQUASHFS" "${OLD_SQUASHFS}.bak"
+        echo -e "  Backup: ${OLD_SQUASHFS}.bak"
+    fi
+
+    cp "$SQUASHFS_TMP" "$OLD_SQUASHFS"
+    sync
+    umount "$MNT"
+    rmdir "$MNT"
+    rm -f "$SQUASHFS_TMP"
+
+    echo -e "${GREEN}  ✓ Squashfs replaced with version ${REMOTE_VERSION}${RESET}"
+    echo ""
+    echo "Reboot to use the new system."
+    log INFO "Squashfs replaced: ${REMOTE_VERSION}"
+}
+
+# ── cmd: offline ──────────────────────────────────────────────────────────────
+cmd_offline() {
+    local PATH_ARG="${1:-}"
+    require_root "offline"
+    check_persistence
+
+    if [[ -z "$PATH_ARG" ]] || [[ ! -f "$PATH_ARG" ]]; then
+        echo "Usage: nexus-update offline <path-to-squashfs-or-deb-bundle>"
+        exit 1
+    fi
+
+    local EXT="${PATH_ARG##*.}"
+
+    if [[ "$EXT" == "squashfs" ]]; then
+        # Verify magic
+        MAGIC=$(od -A x -t x1z -v "$PATH_ARG" | head -1 | awk '{print $2$3$4}')
+        if [[ "$MAGIC" != "737164" ]]; then  # sqd = squashfs magic
+            echo -e "${RED}File does not appear to be a valid squashfs${RESET}"
+            exit 1
+        fi
+        echo "Offline squashfs install requires write-usb.sh or manual partition access."
+        echo "Mount the live partition and copy: cp ${PATH_ARG} /mnt/live/filesystem.squashfs"
+
+    elif [[ "$EXT" == "deb" ]]; then
+        echo -e "${BOLD}▶ Installing .deb bundle: ${PATH_ARG}${RESET}"
+        dpkg -i "$PATH_ARG"
+
+    elif [[ -d "$PATH_ARG" ]]; then
+        echo -e "${BOLD}▶ Installing .deb files from directory: ${PATH_ARG}${RESET}"
+        dpkg -i "${PATH_ARG}"/*.deb
+
+    else
+        echo -e "${RED}Unsupported file type: .${EXT}${RESET}"
+        echo "Supported: .squashfs, .deb, or a directory with .deb files"
+        exit 1
+    fi
+}
+
+# ── cmd: help ─────────────────────────────────────────────────────────────────
+cmd_help() {
+    echo -e "${BOLD}nexus-update — NexusOS Live System Updater${RESET}"
+    echo ""
+    echo "Usage:"
+    echo "  nexus-update status              Show version and persistence info"
+    echo "  nexus-update check               Check for available updates"
+    echo "  sudo nexus-update apply          Apply apt upgrades (needs persistence to stick)"
+    echo "  sudo nexus-update squashfs /dev/sdX  Replace squashfs from update server"
+    echo "  sudo nexus-update offline <file>     Apply offline .deb or squashfs"
+    echo ""
+    echo "Configuration: /etc/nexus/update.conf"
+    echo "Log:           /var/log/nexus-update.log"
+    echo ""
+    echo "Notes:"
+    echo "  - 'apply' installs apt upgrades. They persist only if booted with 'persistence'."
+    echo "  - 'squashfs' downloads + replaces the filesystem image on the boot USB."
+    echo "    This is a full image update — the squashfs contains the complete OS."
+    echo "  - After 'squashfs', reboot to use the new system."
+}
+
+# ── Main dispatch ─────────────────────────────────────────────────────────────
+mkdir -p "$(dirname "$LOG_FILE")"
+
+CMD="${1:-help}"
+shift || true
+
+case "$CMD" in
+    status)      cmd_status ;;
+    check)       cmd_check  ;;
+    apply)       cmd_apply  ;;
+    squashfs)    cmd_squashfs "$@" ;;
+    offline)     cmd_offline "$@" ;;
+    help|--help|-h) cmd_help ;;
+    *)
+        echo -e "${RED}Unknown command: ${CMD}${RESET}"
+        echo "Run: nexus-update help"
+        exit 1
+        ;;
+esac
