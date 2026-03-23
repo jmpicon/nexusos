@@ -1,5 +1,7 @@
 #include <CLI/CLI.hpp>
 #include <fmt/core.h>
+#include <filesystem>
+#include <system_error>
 
 #include "core/orchestrator.hpp"
 #include "utils/logger.hpp"
@@ -16,15 +18,18 @@ int main(int argc, char* argv[]) {
         fmt::format("{} ({})", VERSION_STRING, DISTRO_CODENAME));
 
     // ── Global options ────────────────────────────────────────────────────────
-    bool verbose  = false;
-    bool dry_run  = false;
-    bool no_color = false;
-    bool quiet    = false;
+    bool        verbose      = false;
+    bool        dry_run      = false;
+    bool        no_color     = false;
+    bool        quiet        = false;
+    std::string project_dir  = "";
 
-    app.add_flag("-v,--verbose", verbose, "Enable verbose output");
-    app.add_flag("-n,--dry-run", dry_run, "Show what would be done without executing");
-    app.add_flag("--no-color",   no_color,"Disable colored output");
-    app.add_flag("-q,--quiet",   quiet,   "Suppress most output");
+    app.add_flag("-v,--verbose",  verbose,     "Enable verbose output");
+    app.add_flag("-n,--dry-run",  dry_run,     "Show what would be done without executing");
+    app.add_flag("--no-color",    no_color,    "Disable colored output");
+    app.add_flag("-q,--quiet",    quiet,       "Suppress most output");
+    app.add_option("-C,--project-dir", project_dir,
+        "Project root directory (default: current working directory)");
 
     auto set_common_opts = [&](BuildOptions& opts) {
         opts.verbose = verbose;
@@ -32,6 +37,16 @@ int main(int argc, char* argv[]) {
         Logger::instance().set_level(verbose ? LogLevel::DEBUG : LogLevel::INFO);
         Logger::instance().set_color(!no_color);
         Logger::instance().set_quiet(quiet);
+        // Change to project root so relative paths (profiles/, overlays/) resolve
+        if (!project_dir.empty()) {
+            std::error_code ec;
+            std::filesystem::current_path(project_dir, ec);
+            if (ec) {
+                fmt::print(stderr, "Error: cannot cd to '{}': {}\n",
+                    project_dir, ec.message());
+                std::exit(1);
+            }
+        }
     };
 
     // ── doctor ────────────────────────────────────────────────────────────────

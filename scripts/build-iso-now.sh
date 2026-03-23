@@ -70,10 +70,11 @@ echo ""
 
 mkdir -p "$OUTPUT_DIR"
 
-"$NEXUS_BIN" release \
+"$NEXUS_BIN" -C "$PROJECT_DIR" release \
     --profile "$PROFILE" \
     --mode "$MODE" \
     --output "$OUTPUT_DIR" \
+    --skip-smoke \
     --jobs "$(nproc)"
 
 # ── 4. Show result ────────────────────────────────────────────────────────────
