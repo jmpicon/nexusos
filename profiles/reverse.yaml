@@ -20,47 +20,37 @@ packages:
   - xorg
   - dbus-x11
 
-  # Disassemblers and decompilers
-  - ghidra
+  # Disassemblers and binary analysis
+  # NOTE: Ghidra (NSA) must be installed manually: https://ghidra-sre.org
   - radare2
-  - r2ghidra
-  - cutter
+  - binutils
+  - binwalk
+  - file
+  - hexedit
+  - vim-common
+  - bsdmainutils
+  - elfutils
+  - libelf-dev
+  - patchelf
 
   # Debuggers
   - gdb
   - gdb-multiarch
   - lldb
-  - pwndbg
-  - peda
-
-  # Binary analysis
-  - binutils
-  - binwalk
-  - file
-  - readelf
-  - objdump
-  - objcopy
-  - nm
-  - strings
-  - hexedit
-  - xxd
-  - bsdmainutils
+  # NOTE: pwndbg/peda are gdb plugins installed via git in post-hook
 
   # Dynamic analysis
   - strace
   - ltrace
-  - dtrace
-  - perf
+  - linux-perf
   - valgrind
-  - pin
 
   # Scripting and automation
   - python3
   - python3-pip
+  - python3-venv
   - python3-capstone
-  - python3-pwntools
-  - python3-keystone
-  - python3-unicorn
+  - python3-pefile
   - ipython3
 
   # Network analysis (for malware)
@@ -69,7 +59,7 @@ packages:
   - tcpdump
   - ngrep
 
-  # Sandbox helpers (static analysis only)
+  # Sandbox helpers (static analysis)
   - yara
   - clamav
   - ssdeep
@@ -78,32 +68,17 @@ packages:
   - qemu-user
   - qemu-user-static
 
-  # Compilers and tools
+  # Compilers and build tools
   - gcc
   - g++
   - clang
   - nasm
-  - masm
   - make
   - cmake
   - build-essential
 
-  # Java (for Ghidra)
+  # Java (needed for Ghidra)
   - default-jdk
-
-  # ELF helpers
-  - elfutils
-  - libelf-dev
-  - patchelf
-  - checksec
-
-  # PE analysis
-  - python3-pefile
-  - python3-signify
-
-  # Hex editors and viewers
-  - wxhexeditor
-  - okteta
 
 packages_hardened:
   - firejail

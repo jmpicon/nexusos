@@ -1,5 +1,6 @@
 # NexusOS — Cloud Security profile
 # Cloud infrastructure security, container security, Kubernetes security.
+# NOTE: kubectl, helm, terraform, trivy are installed via post-hook from official repos.
 
 name: cloud
 description: "Cloud/container security — K8s, Docker, Terraform, cloud-native tooling"
@@ -13,81 +14,42 @@ overlays:
   - cloud
 
 packages:
-  # Desktop
-  - xfce4
-  - xfce4-terminal
-  - lightdm
-  - xorg
-
-  # Container runtimes
+  # Container runtimes (all in Debian Bookworm)
   - podman
   - buildah
   - skopeo
   - runc
   - crun
 
-  # Container security scanning
-  - trivy
-  - grype
-  - syft
-  - snyk
-
-  # Kubernetes tools
-  - kubectl
-  - helm
-  - k9s
-  - kubeaudit
-  - kube-bench
-  - kube-score
-  - kubeval
-  - kustomize
-  - stern
-  - velero
-
-  # Infrastructure as code
-  - terraform
-  - terragrunt
+  # Infrastructure as code (Debian repos)
   - ansible
-  - ansible-lint
+  - python3-jinja2
+  - python3-yaml
 
-  # Cloud CLI tools
-  - awscli
-  - azure-cli
-  - google-cloud-sdk
-
-  # Secrets management
-  - vault
-  - sops
+  # Secrets management (Debian repos)
   - age
   - pass
+  - gnupg2
 
-  # Cloud audit / CSPM
-  - prowler
-  - steampipe
-  - cloudcustodian
-
-  # Network tools (cloud focus)
+  # Network tools
   - nmap
   - masscan
-  - nuclei
-  - httpx
+  - curl
+  - wget
 
-  # API security
-  - ffuf
-  - gobuster
-  - arjun
+  # API testing
+  - httpie
 
-  # Observability
+  # Monitoring (Debian repos)
   - prometheus
-  - grafana
+  - prometheus-node-exporter
   - alertmanager
-  - loki
+  - collectd
 
   # Scripting
   - python3
-  - python3-boto3
-  - python3-google-cloud-storage
-  - python3-azure
+  - python3-pip
+  - python3-venv
   - jq
   - yq
   - nodejs
@@ -96,16 +58,19 @@ packages:
   # Git and pipeline
   - git
   - git-crypt
-  - pre-commit
+
+  # TLS/PKI
+  - certbot
+  - openssl
 
 packages_hardened:
-  - vault
   - certbot
+  - libpam-pwquality
 
 packages_lab:
-  - kind
-  - minikube
+  - podman-compose
   - docker.io
 
 config:
   cloud_focus: "multi-cloud"
+  note: "kubectl/helm/terraform/trivy installed via post-cloud.sh hook"

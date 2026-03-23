@@ -3,13 +3,14 @@
 
 # ── Network scanning ─────────────────────────────────────────────────────────
 nmap
-nmap-common
 masscan
 arp-scan
 arping
 traceroute
 mtr
 whois
+bind9-host
+dnsutils
 
 # ── Packet capture ────────────────────────────────────────────────────────────
 wireshark
@@ -21,11 +22,13 @@ libpcap-dev
 termshark
 
 # ── Network monitoring ────────────────────────────────────────────────────────
-zeek
 suricata
 suricata-update
+snort
 iftop
 nethogs
+bandwidthd
+darkstat
 
 # ── System monitoring ─────────────────────────────────────────────────────────
 htop
@@ -41,15 +44,15 @@ yq
 ripgrep
 fd-find
 gawk
+miller
 
 # ── System auditing ───────────────────────────────────────────────────────────
 lynis
-osquery
 rkhunter
 chkrootkit
 aide
 auditd
-audit-audispd-plugins
+audispd-plugins
 
 # ── Firewall ──────────────────────────────────────────────────────────────────
 nftables

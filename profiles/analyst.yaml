@@ -33,8 +33,8 @@ packages:
   - mtr
   - ngrep
   - whois
-  - host
-  - dig
+  - bind9-host
+  - dnsutils
 
   # Packet capture and analysis
   - wireshark
@@ -46,16 +46,13 @@ packages:
   - termshark
 
   # Network monitoring
-  - zeek
   - suricata
-  - snort3
-  - ntopng
+  - suricata-update
+  - snort
   - iftop
   - nethogs
   - bandwidthd
-
-  # IDS/IPS rules
-  - suricata-update
+  - darkstat
 
   # System monitoring
   - htop
@@ -77,12 +74,11 @@ packages:
 
   # System auditing
   - lynis
-  - osquery
   - rkhunter
   - chkrootkit
   - aide
   - auditd
-  - audit-audispd-plugins
+  - audispd-plugins
 
   # Firewall and network config
   - nftables
@@ -106,7 +102,6 @@ packages:
   - dnstwist
   - dnsenum
   - dnswalk
-  - nmap-common
 
 packages_hardened:
   - fail2ban

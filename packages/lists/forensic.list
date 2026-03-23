@@ -4,9 +4,8 @@
 sleuthkit
 dc3dd
 dcfldd
-ddrescue
+gddrescue
 testdisk
-photorec
 scalpel
 foremost
 safecopy
@@ -17,10 +16,15 @@ e2fsprogs
 ntfs-3g
 exfatprogs
 btrfs-progs
+fatresize
+hfsprogs
+nilfs-tools
 
 # ── Memory forensics ──────────────────────────────────────────────────────────
-volatility3
-lime-forensics-dkms
+# volatility3 is installed via pip3 in post-forensic hook
+python3
+python3-pip
+python3-venv
 
 # ── Malware analysis (static) ─────────────────────────────────────────────────
 yara
@@ -30,14 +34,13 @@ clamav-daemon
 radare2
 
 # ── File analysis ─────────────────────────────────────────────────────────────
-exiftool
+libimage-exiftool-perl
 ssdeep
 afflib-tools
 ewf-tools
 
 # ── Hash tools ───────────────────────────────────────────────────────────────
 hashdeep
-md5deep
 
 # ── Archive handling ─────────────────────────────────────────────────────────
 unrar
@@ -49,3 +52,6 @@ libarchive-tools
 aide
 tripwire
 debsums
+
+# ── Log analysis ─────────────────────────────────────────────────────────────
+logwatch

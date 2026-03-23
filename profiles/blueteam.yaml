@@ -13,34 +13,20 @@ overlays:
   - blueteam
 
 packages:
-  # SIEM / log aggregation
-  - elasticsearch
-  - logstash
-  - kibana
-  - filebeat
-  - auditbeat
-  - packetbeat
-
-  # Threat hunting
-  - osquery
-  - velociraptor-client
-  - sigma
-
-  # Endpoint detection
-  - wazuh-agent
+  # Endpoint detection and AV
   - clamav
   - clamav-daemon
-  - freshclam
+  - rkhunter
+  - chkrootkit
 
   # Vulnerability scanning
-  - openvas
-  - greenbone-vulnerability-manager
   - nikto
+  - nmap
 
   # Hardening auditing
   - lynis
-  - openscap
-  - scap-security-guide
+  - openscap-scanner
+  - libopenscap8
   - aide
   - tripwire
   - debsums
@@ -49,18 +35,13 @@ packages:
   - nftables
   - suricata
   - suricata-update
-  - zeek
   - psad
 
   # Patch management
   - unattended-upgrades
   - apt-listchanges
   - apt-show-versions
-
-  # Container security
-  - trivy
-  - grype
-  - syft
+  - needrestart
 
   # Identity and access
   - libpam-pwquality
@@ -71,22 +52,20 @@ packages:
   # Secure communications
   - gnupg2
   - age
-  - sops
 
-  # Monitoring dashboards
-  - grafana
+  # Monitoring
   - prometheus
   - prometheus-node-exporter
   - alertmanager
-
-  # Network security monitoring
-  - zeek
-  - moloch
-  - arkime
+  - collectd
 
   # YARA
   - yara
-  - yara-doc
+
+  # Log collection and analysis
+  - filebeat
+  - logwatch
+  - python3-systemd
 
 packages_hardened:
   - libpam-pwquality
@@ -98,4 +77,3 @@ packages_lab: []
 
 config:
   monitoring_mode: "true"
-  elk_integration: "optional"

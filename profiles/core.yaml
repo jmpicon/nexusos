@@ -27,7 +27,6 @@ packages:
   - diffutils
   - file
   - less
-  - more
   - man-db
   - manpages
 
@@ -111,7 +110,7 @@ packages_hardened:
   - fail2ban
 
 packages_lab:
-  - qemu-guest-additions
+  - qemu-guest-agent
   - open-vm-tools
 
 packages_exclude: []
